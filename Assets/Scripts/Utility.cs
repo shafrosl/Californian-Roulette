@@ -303,9 +303,7 @@ namespace Utility
 
             var x1 = radius * Mathf.Cos(0);
             var y1 = radius * Mathf.Sin(0);
-            var z1 = 0;
-            
-            var point1 = new Vector3(x1, y1, z1);
+            var point1 = new Vector3(x1, y1, 0);
             
             for (var i = 0; i < 359; i = i + deltaAngle)
             {
@@ -315,8 +313,7 @@ namespace Utility
                 
                 var x2 = radius * Mathf.Cos((i + deltaAngle) * val);
                 var y2 = radius * Mathf.Sin((i + deltaAngle) * val);
-                var z2 = 0;
-                var point2 = new Vector3(x2, y2, z2);
+                var point2 = new Vector3(x2, y2, 0);
                 
                 circleVertices.Add(center);
                 circleVertices.Add(point1);
@@ -339,8 +336,54 @@ namespace Utility
                 numesh.vertices = circleVertices.ToArray();
                 numesh.triangles = triangles.ToArray();
                 numesh.uv = uvs.ToArray();
+                numesh.RecalculateNormals();
                 go.GetComponent<MeshRenderer>().material = material;
                 shape.Add(go);
+            }
+            
+            return shape;
+        }
+
+        public static List<GameObject> DrawGrid(int xSize, int ySize, Material material, float xLength = 1, float yLength = 1)
+        {
+            List<GameObject> shape = new();
+
+            var index = 0;
+            for (var y = ySize - 1; y >= 0; y--)
+            {
+                for (var x = 0; x < xSize; x++)
+                {
+                    var triangles = new List<int>();
+                    var vertices = new List<Vector3>();
+                    var uvs = new List<Vector2>();
+            
+                    vertices.Add(new Vector3(x * xLength, y * yLength));
+                    vertices.Add(new Vector3(x * xLength, (y + 1) * yLength));
+                    vertices.Add(new Vector3((x + 1) * xLength, (y + 1) * yLength));
+                    vertices.Add(new Vector3((x + 1) * xLength, y * yLength));
+            
+                    uvs.Add(new Vector2(0.0f, 0.0f));
+                    uvs.Add(new Vector2(0.0f, 1.0f));
+                    uvs.Add(new Vector2(1.0f, 1.0f));
+                    uvs.Add(new Vector2(1.0f, 0.0f));
+            
+                    triangles.Add(0);
+                    triangles.Add(1);
+                    triangles.Add(2);
+                    triangles.Add(0);
+                    triangles.Add(2);
+                    triangles.Add(3);
+                    
+                    var go = new GameObject("Grid " + ++index, typeof(MeshFilter), typeof(MeshRenderer), typeof(PolygonCollider2D), typeof(LineRenderer));
+                    go.layer = 6;
+                    var numesh = go.GetComponent<MeshFilter>().mesh;
+                    numesh.vertices = vertices.ToArray();
+                    numesh.triangles = triangles.ToArray();
+                    numesh.uv = uvs.ToArray();
+                    numesh.RecalculateNormals();
+                    go.GetComponent<MeshRenderer>().material = material;
+                    shape.Add(go);
+                }
             }
             
             return shape;

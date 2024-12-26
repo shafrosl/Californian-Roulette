@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Sirenix.OdinInspector;
 using UnityEditor;
 using UnityEngine;
@@ -6,10 +7,22 @@ using UnityEngine.EventSystems;
 using Utility;
 using Debug = Utility.DebugExtensions;
 
-public class Roulette : MonoBehaviour, ISpinButtonHandler, IPinHandler
+public class Roulette : MonoBehaviour, IButtonHandler, IHighlightHandler
 {
     private List<GameObject> triangles = new();
     private GameObject pinObj;
+
+    [ShowInInspector] private bool _justClicked;
+    [ShowInInspector] private bool _isSpinning;
+    [ShowInInspector] private bool _isStopped;
+    
+    [Header("Settings")]
+    public GameObject roulette;
+    public Rigidbody2D rigidBody;
+    [Range(3, 72), ValidateInput("ValidatePolygonSides", "Choose another number!")] public int polygonSides;
+    [Range(0.5f, 8)] public float radius;
+    [Range(50, 500)] public int stopVelocity;
+    [Range(1500, 3500)] public int torque;
 
     [Header("Other Roulette Stuff")]
     public GameObject pin;
@@ -17,26 +30,16 @@ public class Roulette : MonoBehaviour, ISpinButtonHandler, IPinHandler
     public Material highlightMat;
     public Material rouletteMat;
     
-    [Header("Settings")]
-    public Rigidbody2D rigidBody;
-    [Range(3, 72), ValidateInput("ValidatePolygonSides", "Polygon Sides are not divisible by 360!")] public int polygonSides;
-    [Range(0.5f, 8)] public float radius;
-    [Range(50, 500)] public int stopVelocity;
-    [Range(1500, 3500)] public int torque;
-
-    [ShowInInspector] private bool _justClicked;
-    [ShowInInspector] private bool _isSpinning;
-    [ShowInInspector] private bool _isStopped;
-    
     // remove later and put in separate data script
     [ShowInInspector] private int landIndex;
+    private int[] excludeNumbers = { 4, 5, 8, 10, 20, 40 };
     
     private void Start() => Init();
 
     private void Update()
     {
         CheckSpin();
-        HighlightCard();
+        Highlight();
     }
 
     #region Methods
@@ -56,32 +59,24 @@ public class Roulette : MonoBehaviour, ISpinButtonHandler, IPinHandler
             triangles = MeshExtensions.DrawCircle(polygonSides, radius, rouletteMat);
             triangles.ForEach(x =>
             {
-                x.transform.SetParent(transform);
+                x.transform.SetParent(roulette.transform);
                 PolygonColliderExtensions.CreatePolygon2DColliderPoints(x.GetComponent<MeshFilter>(), x.GetComponent<PolygonCollider2D>());
             });
             
-            var trigger = Instantiate(spinBtn, Vector3.zero, Quaternion.identity, transform.parent).GetComponent<EventTrigger>();
-            var trigEvent = new EventTrigger.Entry
-            {
-                eventID = EventTriggerType.PointerUp
-            };
-            
-            trigEvent.callback.AddListener(Spin);
-            trigger.triggers.Add(trigEvent);
-            
-            pinObj = Instantiate(pin, Vector3.up, Quaternion.identity, transform.parent);
+            CreateButton();
+            pinObj = Instantiate(pin, Vector3.up, Quaternion.identity, transform);
         }
     
         private void CheckSpin()
         {
             if (rigidBody.angularVelocity <= stopVelocity && _isSpinning && !_justClicked)
             {
-                var angle = (int)(transform.localRotation.eulerAngles.z);
+                var angle = (int)(roulette.transform.localRotation.eulerAngles.z);
                 if (angle % (360 / polygonSides) == 0)
                 {
                     rigidBody.velocity = Vector2.zero;
                     rigidBody.angularVelocity = 0;
-                    transform.localRotation = Quaternion.Euler(new Vector3(0, 0, angle));
+                    roulette.transform.localRotation = Quaternion.Euler(new Vector3(0, 0, angle));
                     
                     _isSpinning = false;
                     _isStopped = true;
@@ -92,9 +87,21 @@ public class Roulette : MonoBehaviour, ISpinButtonHandler, IPinHandler
                 _justClicked = false;
             }
         }
-        
+
+        public void CreateButton()
+        {
+            var trigger = Instantiate(spinBtn, Vector3.zero, Quaternion.identity, transform).GetComponent<EventTrigger>();
+            var trigEvent = new EventTrigger.Entry
+            {
+                eventID = EventTriggerType.PointerUp
+            };
+            
+            trigEvent.callback.AddListener(OnAction);
+            trigger.triggers.Add(trigEvent);
+        }
+
         [PropertySpace(10), Button("Spin Roulette")]
-        public void Spin(BaseEventData eventData)
+        public void OnAction(BaseEventData eventData)
         {
             if (_isSpinning) return;
             if (landIndex > 0) triangles[landIndex-1].GetComponent<PolygonCollider2D>().RemoveHighlightAroundCollider();
@@ -104,7 +111,7 @@ public class Roulette : MonoBehaviour, ISpinButtonHandler, IPinHandler
             rigidBody.AddTorque(Random.Range(torque, torque * 2.5f));
         }
     
-        public void HighlightCard()
+        public void Highlight()
         {
             if (!_isStopped || _justClicked || _isSpinning) return;
             if (landIndex > 0) return;
@@ -116,8 +123,12 @@ public class Roulette : MonoBehaviour, ISpinButtonHandler, IPinHandler
             }
         }
 
-        private bool ValidatePolygonSides() => 360 % polygonSides == 0;
+        private bool ValidatePolygonSides()
+        {
+            if (excludeNumbers.Any(number => polygonSides == number)) return false;
+            return (360 % polygonSides == 0);
+        }
 
-    #endregion
+        #endregion
         
 }
