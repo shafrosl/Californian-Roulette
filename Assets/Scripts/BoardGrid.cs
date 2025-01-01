@@ -1,58 +1,40 @@
+using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
+using UnityEngine.UI;
 using Utility;
 
-public class BoardGrid : MonoBehaviour, IHighlightHandler, IButtonHandler
+public class BoardGrid : MonoBehaviour, IHighlightHandler
 {
-    public Material highlightMaterial;
     public bool isHighlighted;
+    public Color[] colors;
+    public Color highlightColor;
+    public Image border, cell;
+    public Button button;
+    public TextMeshProUGUI text;
+    private int gridIndex;
     
-    private PolygonCollider2D _polygonCollider2D;
-
-    public void Init(Material mat)
+    public void Init(int cIndex, int index)
     {
-        if (gameObject.TryGetComponent<PolygonCollider2D>(out var collider))
-        {
-            _polygonCollider2D = collider;
-            highlightMaterial = mat;
-        }
-        
-        PolygonColliderExtensions.CreatePolygon2DColliderPoints(gameObject.GetComponent<MeshFilter>(), gameObject.GetComponent<PolygonCollider2D>());
-        CreateButton();
+        border.color = cell.color = colors[cIndex];
+        button.onClick.RemoveAllListeners();
+        button.onClick.AddListener(Highlight);
+        gridIndex = index - 1;
+        text.text = index.ToString();
     }
     
     public void Highlight()
     {
         if (!isHighlighted)
         {
-            if (!_polygonCollider2D) return;
-            _polygonCollider2D.HighlightAroundCollider(Color.yellow, highlightMaterial);
+            if (!GameManager.Instance.AddSelected(gridIndex)) return;
+            border.color = highlightColor;
             isHighlighted = true;
         }
         else
         {
-            if (!_polygonCollider2D) return;
-            _polygonCollider2D.RemoveHighlightAroundCollider();
+            if (!GameManager.Instance.RemoveSelected(gridIndex)) return;
+            border.color = cell.color;
             isHighlighted = false;
         }
     }
-
-    public void CreateButton()
-    {
-        if (!gameObject.TryGetComponent<EventTrigger>(out var trigger))
-        {
-            trigger = gameObject.AddComponent<EventTrigger>();
-        }
-        
-        var trigEvent = new EventTrigger.Entry
-        {
-            eventID = EventTriggerType.PointerUp
-        };
-        
-        trigEvent.callback.RemoveAllListeners();
-        trigEvent.callback.AddListener(OnAction);
-        trigger.triggers.Add(trigEvent);
-    }
-
-    public void OnAction(BaseEventData eventData) => Highlight();
 }

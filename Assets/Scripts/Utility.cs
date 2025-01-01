@@ -81,6 +81,7 @@ namespace Utility
         public static bool IsSafe<T>(this IList<T> list,int count) => list != null && list.Count == count;
         public static bool IsSafe<T>(this ICollection<T> collection,int count) => collection != null && collection.Count == count;
         public static bool IsSafe<T>(this IEnumerable<T> enumerable) => enumerable != null && enumerable.Any();
+        public static bool IsNotNull<T>(this IList<T> list) => list != null;
         public static bool InRange<T>(this ICollection<T> collection, int index) => collection != null && index >= 0 && collection.Count > index;
         public static bool Get<T>(this ICollection<T> collection, int index,out T item)
         {
