@@ -13,3 +13,40 @@ MonoBehaviour:
   m_Name: GameSettings
   m_EditorClassIdentifier: 
   excludeNumbers: 0400000005000000080000000a0000001400000028000000
+  bets:
+  - betType: 37
+    odds: 2
+  - betType: 38
+    odds: 2
+  - betType: 39
+    odds: 2
+  - betType: 41
+    odds: 2
+  - betType: 42
+    odds: 2
+  - betType: 43
+    odds: 2
+  - betType: 44
+    odds: 35
+  - betType: 45
+    odds: 17
+  - betType: 46
+    odds: 11
+  - betType: 47
+    odds: 8
+  - betType: 48
+    odds: 6
+  - betType: 49
+    odds: 5
+  - betType: 50
+    odds: 1
+  - betType: 51
+    odds: 1
+  - betType: 52
+    odds: 1
+  - betType: 53
+    odds: 1
+  - betType: 54
+    odds: 1
+  - betType: 55
+    odds: 1

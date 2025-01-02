@@ -27,31 +27,50 @@ public class GameManager : MonoBehaviour
     public int GetLandIndex() => gameData.landIndex;
     public void SetLandIndex(int index) => gameData.landIndex = index;
     private int[] GetExcludedNumbers() => gameSettings.excludeNumbers.IsSafe() ? gameSettings.excludeNumbers : null;
+
+    private async void Start()
+    {
+        await UniTask.Delay(100);
+        if (!gameData.ClearGameData()) return;
+        roulette.Init();
+        bettingBoard.Init();
+    }
+
+    #region Methods
     
-    public bool AddSelected(int number)
+    public bool AddSelectedNumber(int number)
     {
         if (!gameData.selectedNumbers.IsNotNull()) return false;
         if (gameData.selectedNumbers.Contains(number)) return false;
+        if (gameData.selectedNumbers.Count >= 6) return false;
         gameData.selectedNumbers.Add(number);
         return true;
     }
 
-    public bool RemoveSelected(int number)
+    public bool RemoveSelectedNumber(int number)
     {
         if (!gameData.selectedNumbers.IsSafe()) return false;
         if (!gameData.selectedNumbers.Contains(number)) return false;
         gameData.selectedNumbers.Remove(number);
         return true;
     }
-
-    private async void Start()
+    
+    public bool AddSelectedBet(int number)
     {
-        await UniTask.Delay(100);
-        roulette.Init();
-        bettingBoard.Init();
-        gameData.selectedNumbers.Clear();
+        if (!gameData.selectedBets.IsNotNull()) return false;
+        if (gameData.selectedBets.Contains(number)) return false;
+        gameData.selectedBets.Add(number);
+        return true;
     }
 
+    public bool RemoveSelectedBet(int number)
+    {
+        if (!gameData.selectedBets.IsSafe()) return false;
+        if (!gameData.selectedBets.Contains(number)) return false;
+        gameData.selectedBets.Remove(number);
+        return true;
+    }
+    
     public async void Confirm()
     {
         await roulette.Show();
@@ -65,4 +84,6 @@ public class GameManager : MonoBehaviour
         if (excludedNumbers.Any(number => polygonSides == number)) return false;
         return (360 % polygonSides == 0);
     }
+    
+    #endregion
 }

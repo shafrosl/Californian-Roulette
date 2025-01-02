@@ -74,6 +74,8 @@ public class Roulette : GameItem, IButtonHandler, IHighlightHandler
                     
                     _isSpinning = false;
                     _isStopped = true;
+
+                    GameManager.Instance.gameData.CheckWinningNumbers();
                 }
             }
             else if (rigidBody.angularVelocity > stopVelocity && _isSpinning && _isClicked)
@@ -116,6 +118,10 @@ public class Roulette : GameItem, IButtonHandler, IHighlightHandler
                 (contact as PolygonCollider2D).HighlightAroundCollider(Color.yellow, highlightMat);
             }
         }
+        
+        // TODO: REDESIGN ROULETTE WHEEL
+        // ENLARGE SLICES SO BETTER ABLE TO SEE NUMBER
+        // MAYBE USE UI INSTEAD OF MESH RENDERER?
 
         #endregion
 }

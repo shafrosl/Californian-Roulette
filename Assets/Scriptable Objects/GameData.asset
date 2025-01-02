@@ -12,5 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 927348e76989b5d459d85661a686be74, type: 3}
   m_Name: GameData
   m_EditorClassIdentifier: 
-  landIndex: 13
-  selectedNumbers: 140000000f000000
+  landIndex: -1
+  selectedNumbers: 
+  playerTotal: 0
+  amountBet: 0
