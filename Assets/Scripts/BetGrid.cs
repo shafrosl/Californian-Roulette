@@ -11,15 +11,16 @@ public class BetGrid : BoardGrid
     
     public override void Highlight()
     {
+        var gmBB = GameManager.Instance.bettingBoard;
         if (!isHighlighted)
         {
-            if (!GameManager.Instance.AddSelectedBet(gridIndex)) return;
+            if (!gmBB.AddSelectedBet(gridIndex)) return;
             border.color = highlightColor;
             isHighlighted = true;
         }
         else
         {
-            if (!GameManager.Instance.RemoveSelectedBet(gridIndex)) return;
+            if (!gmBB.RemoveSelectedBet(gridIndex)) return;
             border.color = cell.color;
             isHighlighted = false;
         }

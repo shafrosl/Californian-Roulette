@@ -24,15 +24,16 @@ public abstract class BoardGrid : MonoBehaviour, IHighlightHandler
     
     public virtual void Highlight()
     {
+        var gmBB = GameManager.Instance.bettingBoard;
         if (!isHighlighted)
         {
-            if (!GameManager.Instance.AddSelectedNumber(gridIndex)) return;
+            if (!gmBB.AddSelectedNumber(gridIndex)) return;
             border.color = highlightColor;
             isHighlighted = true;
         }
         else
         {
-            if (!GameManager.Instance.RemoveSelectedNumber(gridIndex)) return;
+            if (!gmBB.RemoveSelectedNumber(gridIndex)) return;
             border.color = cell.color;
             isHighlighted = false;
         }

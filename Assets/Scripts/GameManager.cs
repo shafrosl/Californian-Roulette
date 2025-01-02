@@ -38,45 +38,6 @@ public class GameManager : MonoBehaviour
 
     #region Methods
     
-    public bool AddSelectedNumber(int number)
-    {
-        if (!gameData.selectedNumbers.IsNotNull()) return false;
-        if (gameData.selectedNumbers.Contains(number)) return false;
-        if (gameData.selectedNumbers.Count >= 6) return false;
-        gameData.selectedNumbers.Add(number);
-        return true;
-    }
-
-    public bool RemoveSelectedNumber(int number)
-    {
-        if (!gameData.selectedNumbers.IsSafe()) return false;
-        if (!gameData.selectedNumbers.Contains(number)) return false;
-        gameData.selectedNumbers.Remove(number);
-        return true;
-    }
-    
-    public bool AddSelectedBet(int number)
-    {
-        if (!gameData.selectedBets.IsNotNull()) return false;
-        if (gameData.selectedBets.Contains(number)) return false;
-        gameData.selectedBets.Add(number);
-        return true;
-    }
-
-    public bool RemoveSelectedBet(int number)
-    {
-        if (!gameData.selectedBets.IsSafe()) return false;
-        if (!gameData.selectedBets.Contains(number)) return false;
-        gameData.selectedBets.Remove(number);
-        return true;
-    }
-    
-    public async void Confirm()
-    {
-        await roulette.Show();
-        await bettingBoard.Hide();
-    }
-    
     public bool ValidatePolygonSides()
     {
         var excludedNumbers = GetExcludedNumbers();

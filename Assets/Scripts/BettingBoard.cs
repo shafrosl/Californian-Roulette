@@ -121,9 +121,53 @@ public class BettingBoard : GameItem
             }
             
             spinButton.onClick.RemoveAllListeners();
-            spinButton.onClick.AddListener(GameManager.Instance.Confirm);
+            spinButton.onClick.AddListener(Confirm);
             base.Init();
             await Show();
+        }
+        
+        public bool AddSelectedNumber(int number)
+        {
+            var gmD = GameManager.Instance.gameData;
+            if (!gmD.selectedNumbers.IsNotNull()) return false;
+            if (gmD.selectedNumbers.Contains(number)) return false;
+            if (gmD.selectedNumbers.Count >= 6) return false;
+            gmD.selectedNumbers.Add(number);
+            return true;
+        }
+
+        public bool RemoveSelectedNumber(int number)
+        {
+            var gmD = GameManager.Instance.gameData;
+            if (!gmD.selectedNumbers.IsSafe()) return false;
+            if (!gmD.selectedNumbers.Contains(number)) return false;
+            gmD.selectedNumbers.Remove(number);
+            return true;
+        }
+    
+        public bool AddSelectedBet(int number)
+        {
+            var gmD = GameManager.Instance.gameData;
+            if (!gmD.selectedBets.IsNotNull()) return false;
+            if (gmD.selectedBets.Contains(number)) return false;
+            gmD.selectedBets.Add(number);
+            return true;
+        }
+
+        public bool RemoveSelectedBet(int number)
+        {
+            var gmD = GameManager.Instance.gameData;
+            if (!gmD.selectedBets.IsSafe()) return false;
+            if (!gmD.selectedBets.Contains(number)) return false;
+            gmD.selectedBets.Remove(number);
+            return true;
+        }
+    
+        public async void Confirm()
+        {
+            var gm = GameManager.Instance;
+            await gm.roulette.Show();
+            await gm.bettingBoard.Hide();
         }
         
         #endregion
